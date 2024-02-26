@@ -131,6 +131,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="clsCodeWriter.h" />
+    <ClInclude Include="clsCommand.h" />
     <ClInclude Include="clsParser.h" />
     <ClInclude Include="utilities.h" />
   </ItemGroup>

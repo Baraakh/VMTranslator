@@ -4,11 +4,13 @@ using namespace std;
 
 int main()
 {
-    clsParser parser("C:/Users/minga/source/repos/VMTranslator/MemoryAccess/StaticTest/StaticTest.vm");
+    clsParser parser("C:/Users/minga/source/repos/VMTranslator/StackArithmetic/StackTest/StackTest.vm");
 
     while (parser.hasMoreCommands())
     {
-        cout << "\"" << parser.getCurrentCommand() << "\"" << endl;
+        clsCommand* currentCommand = parser.getCurrentCommand();
+
+        cout << "Command Type: " << currentCommand->instructionType() << " Arg1: " << currentCommand->getArg1() << " Agr2: " << currentCommand->getArg2() << endl;
         parser.advance();
     }
 
