@@ -129,6 +129,18 @@
   <ItemGroup>
     <ClCompile Include="VMTranslator.cpp" />
   </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="clsCodeWriter.h" />
+    <ClInclude Include="clsParser.h" />
+    <ClInclude Include="utilities.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="MemoryAccess\BasicTest\BasicTest.vm" />
+    <None Include="MemoryAccess\PointerTest\PointerTest.vm" />
+    <None Include="MemoryAccess\StaticTest\StaticTest.vm" />
+    <None Include="StackArithmetic\SimpleAdd\SimpleAdd.vm" />
+    <None Include="StackArithmetic\StackTest\StackTest.vm" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

@@ -13,10 +13,41 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="testFiles">
+      <UniqueIdentifier>{51909376-5385-41f9-8d47-5667552cf0b6}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="VMTranslator.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="clsParser.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="clsCodeWriter.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="utilities.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="MemoryAccess\BasicTest\BasicTest.vm">
+      <Filter>testFiles</Filter>
+    </None>
+    <None Include="MemoryAccess\PointerTest\PointerTest.vm">
+      <Filter>testFiles</Filter>
+    </None>
+    <None Include="MemoryAccess\StaticTest\StaticTest.vm">
+      <Filter>testFiles</Filter>
+    </None>
+    <None Include="StackArithmetic\SimpleAdd\SimpleAdd.vm">
+      <Filter>testFiles</Filter>
+    </None>
+    <None Include="StackArithmetic\StackTest\StackTest.vm">
+      <Filter>testFiles</Filter>
+    </None>
   </ItemGroup>
 </Project>
