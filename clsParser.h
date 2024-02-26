@@ -41,6 +41,7 @@ private:
 			cout << "Error Command: " << _vCurrentCommand[0] << " is not found" << endl;
 			throw "Error Command: " + _vCurrentCommand[0] + " is not found";
 		}
+
 	}
 
 public:
