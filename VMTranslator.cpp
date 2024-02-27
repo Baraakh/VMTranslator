@@ -6,7 +6,7 @@ using namespace std;
 
 int main()
 {
-    string FILE_PATH = "C:/Users/minga/source/repos/VMTranslator/StackArithmetic/StackTest/StackTest.vm";
+    string FILE_PATH = "";
     string OUTPUT_FILE_PATH;
 
     // genrating the output file path
