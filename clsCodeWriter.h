@@ -10,7 +10,7 @@ using namespace std;
 class clsCodeWriter
 {
 private:
-	ifstream _outputFile;
+	ofstream _outputFile;
 	string fileName;
 
 	void writeArithmetic(string arithmeticCommand)
@@ -18,103 +18,153 @@ private:
 
 	}
 
-	/*
-	In the push method
-
-	-(Local, argument, this, that). have thier own way in translating which is in pseudocode (addr = segmentPointer + i, *SP = *addr, SP++)
-	push local i
+	void writePush(string command, int index)
 	{
-		@i
-		D=A
-		@LCL // it can be R1 == LCL, R2 = ARG, R3 = THIS, R4 = THAT
-		A=D+M // addr = segmentPointer + i
-		D=M
-		@SP // *SP = *addr
-		A=M
-		M=D
-		@SP //SP++
-		M=M+1
-	}
+		//writing the VM commmand as a comment for debugging 
+		_outputFile << "// push " + command + " " + to_string(index) + "\n";
 
-	-(constant). has unqic way also which is (*SP = i, SP++)
-	or in assembly
-	{
-		// push constant i
-		@i // i is a constant
-		D=A
-		@SP // R0 == SP
-		A=M
-		M=D //*SP = i
-		@SP // SP++ // R0 == SP 
-		M=M+1
-	}
-
-	-(static). has also a unqic way push static 5 (*SP = *staticVariableAddr, SP++)
-	{
-		@fileName.5 (assember alocat from RAM[16] - RAM[255])
-		D=M 
-		@SP // *SP = *staticVariableAddr // R0 == SP
-		A=M
-		M=D
-		@SP // SP++ // R0 == SP
-		M=M+1
-	}
-
-	-(temp). has also a unqic way push temp i (0 <= i <= 7) (addr = 5 + i, *SP = *addr, SP++) 
-	{
-
-		@i // (0 <= i <= 7)
-		D=A
-		@5 // Mapped on Ram location 5 to 12, 5 is the base address
-		A=D+M // addr = 5 + i
-		D=M
-		@SP // *SP = *addr
-		A=M
-		M=D
-		@SP //SP++
-		M=M+1
-
-	}
-
-
-	-(pointer). has also a unqic way push point 0/1..
-	A fixed, 2-place segment:
-		accessing pointer 0 should result in accessing THIS
-		accessing pointer 1 should result in accessing THAT
-	(*sp = THIS/THAT, SP++)
-	{
-		if (i == 0) // THIS
+		if (command == "constant")
 		{
-			@THIS
-			D=M
+			/*
+				-(constant). has unqic way also which is (*SP = i, SP++)
+				or in assembly
+				{
+					// push constant i
+					@i // i is a constant
+					D=A
+					@SP // R0 == SP
+					A=M
+					M=D //*SP = i
+					@SP // SP++ // R0 == SP 
+					M=M+1
+				}
+			*/
 
+			_outputFile << "@" + to_string(index) + "\nD=A\n";
 		}
-		else if (i == 1) // THAT
+		else if (command == "local" || command == "argument" || command == "this" || command == "that")
 		{
-			@THAT
-			D=M
+			/*
+			-(Local, argument, this, that). have thier own way in translating which is in pseudocode (addr = segmentPointer + i, *SP = *addr, SP++)
+				push local i
+				{
+					@i
+					D=A
+					@LCL // it can be R1 == LCL, R2 = ARG, R3 = THIS, R4 = THAT
+					A=D+M // addr = segmentPointer + i
+					D=M
+					@SP // *SP = *addr
+					A=M
+					M=D
+					@SP //SP++
+					M=M+1
+				}
+			*/
+
+			_outputFile << "@" + to_string(index) + "\nD=A\n@LCL\nA=D+M\nD=M\n";
+		}
+		else if (command == "static")
+		{
+			/*
+			-(static). has also a unqic way push static 5 (*SP = *staticVariableAddr, SP++)
+				{
+					@fileName.5 (assember alocat from RAM[16] - RAM[255])
+					D=M 
+					@SP // *SP = *staticVariableAddr // R0 == SP
+					A=M
+					M=D
+					@SP // SP++ // R0 == SP
+					M=M+1
+				}
+			*/
+
+			_outputFile << "@" + fileName + "." + to_string(index) + "\nD=M\n";
+		}
+		else if (command == "temp")
+		{
+			/*
+			-(temp). has also a unqic way push temp i (0 <= i <= 7) (addr = 5 + i, *SP = *addr, SP++) 
+				{
+
+					@i // (0 <= i <= 7)
+					D=A
+					@5 // Mapped on Ram location 5 to 12, 5 is the base address
+					A=D+M // addr = 5 + i
+					D=M
+					@SP // *SP = *addr
+					A=M
+					M=D
+					@SP //SP++
+					M=M+1
+
+				}
+			*/
+
+			_outputFile << "@" + to_string(index) + "\nD=A\n@5\nA=D+M\nD=M\n";
+		}
+		else if (command == "pointer")
+		{
+			/*
+			-(pointer). has also a unqic way push point 0/1..
+				A fixed, 2-place segment:
+					accessing pointer 0 should result in accessing THIS
+					accessing pointer 1 should result in accessing THAT
+				(*sp = THIS/THAT, SP++)
+				{
+					if (i == 0) // THIS
+					{
+						@THIS
+					}
+					else if (i == 1) // THAT
+					{
+						@THAT
+					}
+					else
+					{
+						throw error
+					}
+
+					+
+
+					// same
+					D=M
+					@SP // *sp = THIS/THAT 
+					A=M
+					M=D
+					@SP //SP++
+					M=M+1
+
+				}
+			*/
+
+
+			if (index == 0)
+			{
+				_outputFile << "@THIS\nD=M\n";
+			}
+			else if (index == 1)
+			{
+				_outputFile << "@THAT\nD=M\n";
+			}
+			else
+			{
+				cout << "Error pointer constant: " << to_string(index) << " is not acceptable." << endl;
+				throw "Error pointer constant: " + to_string(index) + " is not acceptable.";
+			}
 		}
 		else
 		{
-			throw error
+			cout << "Error memory segment: " << command << " is not defined." << endl;
+			throw "Error memory segment: " + command + " is not defined.";
 		}
 
-		+
-
-		@SP // *sp = THIS/THAT
-		A=M
-		M=D
-		@SP //SP++
-		M=M+1
-
+		_outputFile << "@SP\nA=M\nM=D\n@SP\nM=M+1\n";
 	}
 
+
+	/*
+		
 	*/
-
-	void writePush(string command, int index)
-	{
-
-	}
 
 	void writePop(string command, int index)
 	{
@@ -131,7 +181,7 @@ public:
 
 		fileName = outputFilePath;
 
-		fileName.erase(0, fileName.find_last_of("/"));
+		fileName.erase(0, fileName.find_last_of("/") + 1);
 		fileName.erase(fileName.find_first_of(".") + 1);
 
 	}
