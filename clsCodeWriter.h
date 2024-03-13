@@ -734,6 +734,61 @@ private:
 
 	}
 	
+	void writeLabel(string label)
+	{
+		_outputFile << "// label: " + label + "\n";
+
+		/*
+		VM:
+			label LabelName
+		Hack asm:
+			(LabelName)
+		*/
+
+		_outputFile << ("(" + label + ")\n");
+	}
+
+	void writeGoto(string label)
+	{
+		_outputFile << "// writeGoto: " + label + "\n";
+
+		/*
+		VM:
+			goto labelName
+		Hack asm:
+			@labelName
+			0;JMP
+		*/
+
+		_outputFile << "@" + label + "\n0;JMP\n";
+
+	}
+
+	void writeIf(string label)
+	{
+		_outputFile << "// IF-goto : " + label + "\n";
+
+		/*
+		VM:
+			if-goto labelName
+		Hack asm:
+			
+			// pop y
+
+			@SP
+			AM=M-1 //SP--
+			D=M
+			
+			@labelName // if D > 0 (true = 1x16, false = 0x16)
+			D;JGT
+
+
+		*/
+		
+		_outputFile << "@SP\nAM=M-1\nD=M\n";
+		_outputFile << "@" + label + "\nD;JGT\n";
+	}
+
 public:
 
 	clsCodeWriter(const string& outputFilePath)
@@ -766,9 +821,9 @@ public:
 			// handling error in the constant
 			if (command->getArg2() < 0)
 			{
-				cout << "Error I can't be less than 0" << endl;
+				cout << "Error no index is declared" << endl;
 				cout << "Instruction push " << command->getArg1() << " " << command->getArg2();
-				throw "Error I can't be less than 0";	
+				throw "Error no index is declared";	
 			}
 
 			writePush(command->getArg1(), command->getArg2());
@@ -778,13 +833,23 @@ public:
 			// handling error in the constant
 			if (command->getArg2() < 0)
 			{
-				cout << "Error I can't be less than 0" << endl;
+				cout << "Error no index is declared" << endl;
 				cout << "Instruction push " << command->getArg1() << " " << command->getArg2();
-				throw "Error I can't be less than 0";
+				throw "Error no index is declared";
 				
 			}
 
 			writePop(command->getArg1(), command->getArg2());
+			break;
+
+		case C_LABEL:
+			writeLabel(command->getArg1());
+			break;
+		case C_GOTO:
+			writeGoto(command->getArg1());
+			break;
+		case C_IF:
+			writeIf(command->getArg1());
 			break;
 		}
 	}

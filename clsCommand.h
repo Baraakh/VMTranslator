@@ -88,3 +88,63 @@ public:
 
 	int getArg2() { return _Arg2; }
 };
+
+class clsCLabel : public clsCommand
+{
+private:
+	string _Arg1;
+
+public:
+
+	clsCLabel(string arg1)
+	{
+		_Arg1 = arg1;
+	}
+
+	enum CommandType instructionType()
+	{
+		return C_LABEL;
+	}
+
+	string getArg1() { return _Arg1; }
+};
+
+class clsCGoto : public clsCommand
+{
+private:
+	string _Arg1;
+
+public:
+
+	clsCGoto(string arg1)
+	{
+		_Arg1 = arg1;
+	}
+
+	enum CommandType instructionType()
+	{
+		return C_GOTO;
+	}
+
+	string getArg1() { return _Arg1; }
+};
+
+class clsCIf : public clsCommand
+{
+private:
+	string _Arg1;
+
+public:
+
+	clsCIf(string arg1)
+	{
+		_Arg1 = arg1;
+	}
+
+	enum CommandType instructionType()
+	{
+		return C_IF;
+	}
+
+	string getArg1() { return _Arg1; }
+};

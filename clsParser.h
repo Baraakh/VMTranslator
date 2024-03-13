@@ -17,17 +17,20 @@ private:
 	bool _hasMoreCommands;
 	
 	map<string, CommandType> _CommandType = {
-	{ "add", CommandType::C_ARITHMETIC},
-	{ "sub", CommandType::C_ARITHMETIC},
-	{ "neg", CommandType::C_ARITHMETIC},
-	{ "eq", CommandType::C_ARITHMETIC},
-	{ "gt", CommandType::C_ARITHMETIC},
-	{ "lt", CommandType::C_ARITHMETIC},
-	{ "and", CommandType::C_ARITHMETIC},
-	{ "or", CommandType::C_ARITHMETIC},
-	{ "not", CommandType::C_ARITHMETIC},
-	{ "push", CommandType::C_PUSH},
-	{ "pop", CommandType::C_POP}
+		{ "add", CommandType::C_ARITHMETIC},
+		{ "sub", CommandType::C_ARITHMETIC},
+		{ "neg", CommandType::C_ARITHMETIC},
+		{ "eq", CommandType::C_ARITHMETIC},
+		{ "gt", CommandType::C_ARITHMETIC},
+		{ "lt", CommandType::C_ARITHMETIC},
+		{ "and", CommandType::C_ARITHMETIC},
+		{ "or", CommandType::C_ARITHMETIC},
+		{ "not", CommandType::C_ARITHMETIC},
+		{ "push", CommandType::C_PUSH},
+		{ "pop", CommandType::C_POP},
+		{"label", CommandType::C_LABEL},
+		{"goto", CommandType::C_GOTO},
+		{"if-goto", CommandType::C_IF}
 	};
 
 	enum CommandType chechType()
@@ -93,6 +96,8 @@ public:
 
 		clsCommand* command = nullptr;
 
+		// here must be some exception handling but it's ok.
+
 		switch (Ctype)
 		{
 		case C_ARITHMETIC:
@@ -103,6 +108,15 @@ public:
 			break;
 		case C_POP:
 			command = new clsCPop(_vCurrentCommand[1], stoi(_vCurrentCommand[2]));
+			break;
+		case C_LABEL:
+			command = new clsCLabel(_vCurrentCommand[1]);
+			break;
+		case C_GOTO:
+			command = new clsCGoto(_vCurrentCommand[1]);
+			break;
+		case C_IF:
+			command = new clsCIf(_vCurrentCommand[1]);
 			break;
 		}
 
