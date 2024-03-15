@@ -6,7 +6,7 @@ using namespace std;
 
 int main()
 {
-    string FILE_PATH = "";
+    string FILE_PATH = "C:/Users/minga/Desktop/webprogrammer/Nand2Tetris/nand2tetris/projects/08/FunctionCalls/SimpleFunction/SimpleFunction.vm";
     string OUTPUT_FILE_PATH;
 
     // genrating the output file path

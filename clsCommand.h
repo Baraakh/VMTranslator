@@ -148,3 +148,66 @@ public:
 
 	string getArg1() { return _Arg1; }
 };
+
+class clsCFunction : public clsCommand
+{
+private:
+
+	string _Arg1;
+	int _Arg2;
+
+public:
+
+	clsCFunction(string arg1, int arg2)
+	{
+		_Arg1 = arg1;
+		_Arg2 = arg2;
+	}
+
+	enum CommandType instructionType()
+	{
+		return CommandType::C_FUNCTION;
+	}
+
+	string getArg1() { return _Arg1; }
+
+	int getArg2() { return _Arg2; }
+};
+
+class clsCCall : public clsCommand
+{
+private:
+
+	string _Arg1;
+	int _Arg2;
+
+public:
+
+	clsCCall(string arg1, int arg2)
+	{
+		_Arg1 = arg1;
+		_Arg2 = arg2;
+	}
+
+	enum CommandType instructionType()
+	{
+		return CommandType::C_CALL;
+	}
+
+	string getArg1() { return _Arg1; }
+
+	int getArg2() { return _Arg2; }
+};
+
+class clsCReturn : public clsCommand
+{
+private:
+
+public:
+
+	enum CommandType instructionType()
+	{
+		return CommandType::C_RETURN;
+	}
+
+};

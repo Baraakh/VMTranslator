@@ -30,7 +30,10 @@ private:
 		{ "pop", CommandType::C_POP},
 		{"label", CommandType::C_LABEL},
 		{"goto", CommandType::C_GOTO},
-		{"if-goto", CommandType::C_IF}
+		{"if-goto", CommandType::C_IF},
+		{"call", CommandType::C_CALL},
+		{"function", CommandType::C_FUNCTION},
+		{"return", CommandType::C_RETURN}
 	};
 
 	enum CommandType chechType()
@@ -117,6 +120,15 @@ public:
 			break;
 		case C_IF:
 			command = new clsCIf(_vCurrentCommand[1]);
+			break;
+		case C_FUNCTION:
+			command = new clsCFunction(_vCurrentCommand[1], stoi(_vCurrentCommand[2]));
+			break;
+		case C_CALL:
+			command = new clsCCall(_vCurrentCommand[1], stoi(_vCurrentCommand[2]));
+			break;
+		case C_RETURN:
+			command = new clsCReturn();
 			break;
 		}
 

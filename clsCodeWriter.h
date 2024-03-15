@@ -13,6 +13,7 @@ private:
 	ofstream _outputFile;
 	string fileName;
 
+	int functionReturnCounter = 0;
 	int labelCounter = 0;
 
 	void writeArithmetic(string arithmeticCommand)
@@ -789,6 +790,237 @@ private:
 		_outputFile << "@" + label + "\nD;JGT\n";
 	}
 
+	void writeFunction(string functionName, int numVars)
+	{
+
+		_outputFile << "// Function Label : " + functionName + "\n";
+		/*
+		assembly code:
+
+		(functionName)			// declares a label for the function entry
+			repeat nVars times: // nVars = number of local variables
+			push 0				// initializes the local variables to 0
+
+		Hack assembly:
+
+		(functionName)
+		c++ code
+		for(int i = 0; i < numVars; i++)
+		{
+			@0 // i is a constant
+			D=A
+			@SP // R0 == SP
+			A=M
+			M=D //*SP = i
+			@SP // SP++ // R0 == SP 
+			M=M+1
+		}
+
+
+		*/
+
+
+		_outputFile << "(" + functionName +")\n";
+
+		for (int i = 0; i < numVars; i++)
+		{
+			_outputFile << "@" + to_string(0) + "\nD=A\n";
+			_outputFile << "@SP\nA=M\nM=D\n@SP\nM=M+1\n";
+		}
+	}
+
+	void writeCall(string functionName, int numArgs)
+	{
+		_outputFile << "// Function call : " + functionName + "\n";
+
+		/*
+			assembly code:
+
+			push returnAddress
+			push LCL
+			push ARG
+			push THIS
+			push THAT
+			ARG = SP - 5 - nArgs
+			LCL = SP
+			goto functionName
+			(returnAddress)
+
+			Hack assembly:
+
+			@returnAddress //  -- push returnAddress --
+			D=A
+			@SP // R0 == SP
+			A=M
+			M=D //*SP = i
+			@SP // SP++ // R0 == SP
+			M=M+1
+
+			@LCL //  -- push LCL --
+			D=M
+			@SP // R0 == SP
+			A=M
+			M=D //*SP = i
+			@SP // SP++ // R0 == SP
+			M=M+1
+
+			@ARG //  -- push ARG --
+			D=M
+			@SP // R0 == SP
+			A=M
+			M=D //*SP = i
+			@SP // SP++ // R0 == SP
+			M=M+1
+
+			@THIS //  -- push THIS --
+			D=M
+			@SP // R0 == SP
+			A=M
+			M=D //*SP = i
+			@SP // SP++ // R0 == SP
+			M=M+1
+
+			@THAT //  -- push THAT --
+			D=M
+			@SP // R0 == SP
+			A=M
+			M=D //*SP = i
+			@SP // SP++ // R0 == SP
+			M=M+1
+
+			-- ARG = SP - 5 - nArgs --
+
+			@SP
+			D=M
+			@5 // i is a constant
+			D=D-A
+			@nArgs
+			D=D-A
+			@ARG 
+			M=D
+
+			-- LCL = SP -- 
+
+			@SP
+			D=M
+			@LCL
+			M=D
+
+			@functionName
+			0;JMP
+			(returnAddress)
+		*/
+
+		string returnAddress = (functionName + "$" + "ret." + to_string(functionReturnCounter));
+		functionReturnCounter++;
+
+		_outputFile << "@" + returnAddress + "\nD=A\n";
+		_outputFile << "@SP\nA=M\nM=D\n@SP\nM=M+1\n";
+
+		_outputFile << "@LCL\nD=M\n";
+		_outputFile << "@SP\nA=M\nM=D\n@SP\nM=M+1\n";
+
+		_outputFile << "@ARG\nD=M\n";
+		_outputFile << "@SP\nA=M\nM=D\n@SP\nM=M+1\n";
+
+		_outputFile << "@THIS\nD=M\n";
+		_outputFile << "@SP\nA=M\nM=D\n@SP\nM=M+1\n@nArgs\n";
+
+		_outputFile << "@THAT\nD=M\n";
+		_outputFile << "@SP\nA=M\nM=D\n@SP\nM=M+1\n";
+
+		_outputFile << "@SP\nD=M\n@5\nD=D-A\n@nArgs\nD=D-A\n@ARG\nM=D\n";
+
+		_outputFile << "@SP\nD=M\n@LCL\nM=D\n";
+
+		_outputFile << "@" + functionName + "\n0;JMP\n";
+		_outputFile << ("(" + returnAddress + ")\n");
+	}
+
+	void writeReturn()
+	{
+		_outputFile << "// (Function return)\n";
+
+		/*
+			Hack assembly:
+
+			@LCL //  -- endFrame = LCL --
+			D=M
+			@R13
+			M=D
+
+			@R13 // -- retAddr = *(endFrame - 5)
+			D=M
+			@5
+			A=D-A
+			D=M
+			@R14
+			M=D
+
+			@SP // -- *ARG = pop() --
+			AM=M-1 //SP--
+			D=M // D = *SP
+			@ARG
+			A=M
+			M=D
+
+			@ARG // -- SP = ARG + 1 --
+			D=M+1
+			@SP
+			M=D
+
+			@R13 // -- THAT = *(endFrame - 1)
+			A=M-1
+			D=M
+			@THAT 
+			M=D
+
+			@R13 // -- THIS = *(endFrame - 2)
+			D=M
+			@2
+			A=D-A
+			D=M
+			@THIS
+			M=D
+
+			@R13 // -- ARG = *(endFrame - 3)
+			D=M
+			@3
+			A=D-A
+			D=M
+			@ARG
+			M=D
+
+			@R13 // -- LCL = *(endFrame - 4)
+			D=M
+			@4
+			A=D-A
+			D=M
+			@LCL
+			M=D
+
+			@R14 // -- goto retAddr
+			A=M
+			0;JMP
+		*/
+
+		_outputFile << "@LCL\nD=M\n@R13\nM=D\n";
+
+		_outputFile << "@R13\nD=M\n@5\nA=D-A\nD=M\n@R14\nM=D\n";
+
+		_outputFile << "@SP\nAM=M-1\nD=M\n@ARG\nA=M\nM=D\n";
+
+		_outputFile << "@ARG\nD=M+1\n@SP\nM=D\n";
+
+		_outputFile << "@R13\nA=M-1\nD=M\n@THAT\nM=D\n";
+		_outputFile << "@R13\nD=M\n@2\nA=D-A\nD=M\n@THIS\nM=D\n";
+		_outputFile << "@R13\nD=M\n@3\nA=D-A\nD=M\n@ARG\nM=D\n";
+		_outputFile << "@R13\nD=M\n@4\nA=D-A\nD=M\n@LCL\nM=D\n";
+
+		_outputFile << "@R14\nA=M\n0;JMP\n";
+
+	}
+
 public:
 
 	clsCodeWriter(const string& outputFilePath)
@@ -850,6 +1082,15 @@ public:
 			break;
 		case C_IF:
 			writeIf(command->getArg1());
+			break;
+		case C_FUNCTION:
+			writeFunction(command->getArg1(), command->getArg2());
+			break;
+		case C_CALL:
+			writeCall(command->getArg1(), command->getArg2());
+			break;
+		case C_RETURN:
+			writeReturn();
 			break;
 		}
 	}
