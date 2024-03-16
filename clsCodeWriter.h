@@ -3,9 +3,11 @@
 #include <fstream>
 #include <string>
 #include <vector>
+#include <filesystem>
 #include "clsCommand.h";
 #include "utilities.h";
 using namespace std;
+namespace fs = std::filesystem;
 
 class clsCodeWriter
 {
@@ -15,6 +17,52 @@ private:
 
 	int functionReturnCounter = 0;
 	int labelCounter = 0;
+
+	void writeInit()
+	{
+		// some code and the begining
+
+		// Bootstrap code (should be written in assembly)
+
+		/*
+			@256 // SP = 256		
+			D=A
+			@SP
+			M=D
+
+
+		*/
+
+		_outputFile << "// Bootstrap code\n";
+
+		_outputFile << "@256\nD=A\n@SP\nM=D\n";
+
+		string returnAddress = (fileName + "$ret." + to_string(functionReturnCounter));
+		functionReturnCounter++;
+
+		_outputFile << "@" + returnAddress + "\nD=A\n";
+		_outputFile << "@SP\nA=M\nM=D\n@SP\nM=M+1\n";
+
+		_outputFile << "@LCL\nD=M\n";
+		_outputFile << "@SP\nA=M\nM=D\n@SP\nM=M+1\n";
+
+		_outputFile << "@ARG\nD=M\n";
+		_outputFile << "@SP\nA=M\nM=D\n@SP\nM=M+1\n";
+
+		_outputFile << "@THIS\nD=M\n";
+		_outputFile << "@SP\nA=M\nM=D\n@SP\nM=M+1\n";
+
+		_outputFile << "@THAT\nD=M\n";
+		_outputFile << "@SP\nA=M\nM=D\n@SP\nM=M+1\n";
+
+		_outputFile << "@SP\nD=M\n@5\nD=D-A\n@0\nD=D-A\n@ARG\nM=D\n";
+
+		_outputFile << "@SP\nD=M\n@LCL\nM=D\n";
+
+		_outputFile << "@Sys.init\n0;JMP\n";
+		_outputFile << ("(" + returnAddress + ")\n");
+
+	}
 
 	void writeArithmetic(string arithmeticCommand)
 	{
@@ -781,13 +829,13 @@ private:
 			D=M
 			
 			@labelName // if D > 0 (true = 1x16, false = 0x16)
-			D;JGT
+			D;JNE
 
 
 		*/
 		
 		_outputFile << "@SP\nAM=M-1\nD=M\n";
-		_outputFile << "@" + label + "\nD;JGT\n";
+		_outputFile << "@" + label + "\nD;JNE\n";
 	}
 
 	void writeFunction(string functionName, int numVars)
@@ -911,7 +959,7 @@ private:
 			(returnAddress)
 		*/
 
-		string returnAddress = (functionName + "$" + "ret." + to_string(functionReturnCounter));
+		string returnAddress = (fileName + "$" + "ret." + to_string(functionReturnCounter));
 		functionReturnCounter++;
 
 		_outputFile << "@" + returnAddress + "\nD=A\n";
@@ -924,12 +972,12 @@ private:
 		_outputFile << "@SP\nA=M\nM=D\n@SP\nM=M+1\n";
 
 		_outputFile << "@THIS\nD=M\n";
-		_outputFile << "@SP\nA=M\nM=D\n@SP\nM=M+1\n@nArgs\n";
+		_outputFile << "@SP\nA=M\nM=D\n@SP\nM=M+1\n";
 
 		_outputFile << "@THAT\nD=M\n";
 		_outputFile << "@SP\nA=M\nM=D\n@SP\nM=M+1\n";
 
-		_outputFile << "@SP\nD=M\n@5\nD=D-A\n@nArgs\nD=D-A\n@ARG\nM=D\n";
+		_outputFile << "@SP\nD=M\n@5\nD=D-A\n@" + to_string(numArgs) + "\nD=D-A\n@ARG\nM=D\n";
 
 		_outputFile << "@SP\nD=M\n@LCL\nM=D\n";
 
@@ -1012,7 +1060,7 @@ private:
 
 		_outputFile << "@ARG\nD=M+1\n@SP\nM=D\n";
 
-		_outputFile << "@R13\nA=M-1\nD=M\n@THAT\nM=D\n";
+		_outputFile << "@R13\nD=M\n@1\nA=D-A\nD=M\n@THAT\nM=D\n";
 		_outputFile << "@R13\nD=M\n@2\nA=D-A\nD=M\n@THIS\nM=D\n";
 		_outputFile << "@R13\nD=M\n@3\nA=D-A\nD=M\n@ARG\nM=D\n";
 		_outputFile << "@R13\nD=M\n@4\nA=D-A\nD=M\n@LCL\nM=D\n";
@@ -1032,13 +1080,34 @@ public:
 		fileName = outputFilePath;
 
 		fileName.erase(0, fileName.find_last_of("/") + 1);
-		fileName.erase(fileName.find_first_of(".") + 1);
+		fileName.erase(fileName.find_first_of("."));
+	}
 
+	clsCodeWriter(fs::path& directoryPath, const string& startingFileName = "boot")
+	{
+		string outputFilePath = directoryPath.string() + "/" + directoryPath.filename().string() + ".asm";
+
+		_outputFile.open(outputFilePath, ios::out);
+
+		fileName = startingFileName;
+
+		// Bootstrap code (should be written in assembly)
+		writeInit();
 	}
 
 	~clsCodeWriter()
 	{
 		if (_outputFile.is_open()) _outputFile.close();
+	}
+
+	void setFileName(string _FileName)
+	{
+
+		_outputFile << "/////////////////////////////// From " + this->fileName + " ---> " + _FileName + " ////////////////////////////////\n";
+
+		this->fileName = _FileName;
+		labelCounter = 0;
+		functionReturnCounter = 0;
 	}
 
 	void writeCommandToAsm(clsCommand* command)
